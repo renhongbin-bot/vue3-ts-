@@ -10,7 +10,13 @@ import { defineComponent } from 'vue';
 export default defineComponent({
   name: 'HelloWorld',
   props: {
-    msg: String,
+    msg: {
+      required: true,
+      type: String
+    }
+  },
+  setup(props, context) {
+    context
   }
 });
 </script>

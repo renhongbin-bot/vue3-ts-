@@ -1,5 +1,6 @@
 <template>
   <div>
+    <model :isOpen="modelIsOpen" @clone-model="onModalClone"></model>
     <img alt="Vue logo" src="./assets/logo.png" />
     <h1>{{ count }}</h1>
     <h1>{{ double }}</h1>
@@ -13,14 +14,15 @@
     <img v-if="loaded" :src="result[0].url">
     <h1>X:{{x}}</h1>
     <h1>Y:{{y}}</h1>
-    <button @click="increase">+1</button>
+    <button @click="openModel">open Madal</button>
     <h1>{{greeting}}</h1>
     <button @click="updateGreeting">update title</button>
   </div>
 </template>
 
 <script lang="ts">
-import { ref, defineComponent, computed, reactive, toRefs, onUpdated, onRenderTriggered, watch } from "vue";
+import { ref, defineComponent, computed, reactive, toRefs, onUpdated, onRenderTriggered, watch} from "vue";
+import Model from './components/Model.vue'
 import useMousePosition from './hooks/useMousePosition'
 import useUrlLoader from './hooks/useUrlLoader'
 // 声明类型
@@ -40,6 +42,9 @@ interface CatResult {
 // defineComponent函数，对setup函数进行封装，返回options的对象提示代码；
 export default defineComponent({
   name: "App",
+  components: {
+    Model
+  },
   setup() {
     // const count = ref(0);
     // const double = computed(() => {
@@ -85,6 +90,13 @@ export default defineComponent({
     data.person.name = 'bitle'
     // toRefs把响应式对象里的每一项也变成响应式，保证对象展开后的数据也能是响应的
     const refData = toRefs(data);
+    const modelIsOpen = ref(false)
+    const openModel = () => {
+      modelIsOpen.value = true
+    }
+    const onModalClone = () => {
+      modelIsOpen.value = false
+    }
     return {
       ...refData,
       greeting,
@@ -93,7 +105,10 @@ export default defineComponent({
       y,
       result,
       loading,
-      loaded
+      loaded,
+      modelIsOpen,
+      openModel,
+      onModalClone
     };
   },
 });
