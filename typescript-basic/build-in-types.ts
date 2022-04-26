@@ -12,7 +12,7 @@ Math.pow(2, 2)
 // DOM and BOM
 let body = document.body
 let allLis = document.querySelectorAll('li')
-allLis.keys()
+// allLis.keys()
 
 document.addEventListener('click', (e) => {
   e.preventDefault()
@@ -23,12 +23,12 @@ interface Iperson {
   name: string,
   age: number
 }
-let bitle: Iperson = {
-  name: 'bitle',
-  age: 22
-}
+// let bitle: Iperson = {
+//   name: 'bitle',
+//   age: 22
+// }
 // 可选
-type IPartial = Partial<IPerson>
+type IPartial = Partial<Iperson>
 let bitle2: IPartial = {
   name: 'bitle'
 }

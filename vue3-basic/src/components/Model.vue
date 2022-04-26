@@ -2,12 +2,14 @@
   <teleport to="#model">
     <div id="center" v-if="isOpen">
       <h2><slot>this is model</slot></h2>
+      {{lang}}
+      <h2>{{currentUser && currentUser.name}}</h2>
       <button @click="butClick">Close</button>
     </div>
   </teleport>
 </template>
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, inject } from "vue";
 export default defineComponent({
   name: "ModelCom",
   props: {
@@ -17,11 +19,16 @@ export default defineComponent({
     'clone-model': null
   },
   setup(props, context) {
+    // inject 拿到provide提供的数据
+    const lang = inject('lang')
+    const currentUser = inject<{name: string}>('currentUser')
     const butClick = () => {
       context.emit('clone-model')
     }
     return {
-      butClick
+      butClick,
+      lang,
+      currentUser
     }
   }
 })

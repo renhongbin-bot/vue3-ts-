@@ -15,14 +15,18 @@
     <h1>X:{{x}}</h1>
     <h1>Y:{{y}}</h1>
     <button @click="openModel">open Madal</button>
+    <button @click="changeLang('en')">英文</button>
+    <button @click="changeLang('ch')">中文</button>
     <h1>{{greeting}}</h1>
     <button @click="updateGreeting">update title</button>
+    <message :user="user" @change="showAlert"></message>
   </div>
 </template>
 
 <script lang="ts">
-import { ref, defineComponent, computed, reactive, toRefs, onUpdated, onRenderTriggered, watch} from "vue";
+import { ref, defineComponent, computed, reactive, toRefs, onUpdated, onRenderTriggered, watch, provide} from "vue";
 import Model from './components/Model.vue'
+import Message from './components/Message.vue';
 import useMousePosition from './hooks/useMousePosition'
 import useUrlLoader from './hooks/useUrlLoader'
 // 声明类型
@@ -43,9 +47,23 @@ interface CatResult {
 export default defineComponent({
   name: "App",
   components: {
-    Model
+    Model,
+    Message
   },
   setup() {
+    // provide提供数据
+    const lang = ref('en')
+    provide('lang', lang)
+    const user = {
+      name: 'bitle',
+      age: 22
+    }
+    const showAlert = (text: number) => {
+      alert(text)
+    }
+    const changeLang = (type: string) => {
+      lang.value = type
+    }
     // const count = ref(0);
     // const double = computed(() => {
     //   return count.value * 2
@@ -108,7 +126,10 @@ export default defineComponent({
       loaded,
       modelIsOpen,
       openModel,
-      onModalClone
+      onModalClone,
+      changeLang,
+      showAlert,
+      user
     };
   },
 });

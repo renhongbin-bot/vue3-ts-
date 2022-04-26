@@ -8,12 +8,11 @@
     </ul>
   </div>
 </template>
-
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue'
 import useClickOutside from '../hooks/useClickOutside'
 export default defineComponent({
-  name: 'DropDown',
+  name: 'Drop',
   props: {
     title: {
       type: String,
