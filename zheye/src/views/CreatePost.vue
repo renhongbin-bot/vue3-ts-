@@ -1,6 +1,11 @@
 <template>
   <div class="create-post-page">
     <h4>新建文章</h4>
+    <uploader action="/upload" :beforeUpload="beforeUpload" @file-uploaded="onFileUploaded">
+      <template #uploaded="dataProps">
+        <img :src="dataProps.uploadedData.data.url" width="500" />
+      </template>
+    </uploader>
     <validate-form @form-submit="onFormSubmit">
       <div class="mb-3">
         <label class="form-label">文章标题:</label>
@@ -33,13 +38,17 @@
 import { defineComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import axios from 'axios'
 import ValidateForm from '../components/ValidateForm.vue'
 import ValidateInput, { RulesProp } from '../components/ValidateInput.vue'
-import { GlobalDataProps } from '../store'
+import Uploader from '../components/Uploader.vue'
+import createMessage from '../components/createMessage'
+import { GlobalDataProps, ResponseType, ImageProps } from '../store'
 export default defineComponent({
   components: {
     ValidateForm,
-    ValidateInput
+    ValidateInput,
+    Uploader
   },
   setup () {
     const titleVal = ref('')
@@ -58,6 +67,17 @@ export default defineComponent({
         message: '文章详情不能为空'
       }
     ]
+    const beforeUpload = (file: File) => {
+      const isJpg = file.type === 'image/jpeg'
+      if (!isJpg) {
+        createMessage('上传图片只能是JPG格式', 'error')
+      }
+      return isJpg
+    }
+    const onFileUploaded = (rawData: ResponseType<ImageProps>) => {
+      console.log(rawData)
+      createMessage(`上传图片ID${rawData.data._id}`, 'success')
+    }
     const onFormSubmit = (result: boolean) => {
       if (result) {
         const { column } = store.state.user
@@ -74,12 +94,31 @@ export default defineComponent({
         }
       }
     }
+    const handleFileChange = (e: Event) => {
+      const target = e.target as HTMLInputElement
+      const files = target.files
+      if (files) {
+        const uploadedFile = files[0]
+        const formData = new FormData()
+        formData.append(uploadedFile.name, uploadedFile)
+        axios.post('/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }).then((res: any) => {
+          console.log(res)
+        })
+      }
+    }
     return {
       titleRules,
       titleVal,
       contentRules,
       contentVal,
-      onFormSubmit
+      onFormSubmit,
+      handleFileChange,
+      beforeUpload,
+      onFileUploaded
     }
   }
 })

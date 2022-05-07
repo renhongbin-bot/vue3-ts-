@@ -18,6 +18,7 @@ module.exports = {
     // off warn error
     'vue/multi-word-component-names': 'off',
     'import/no-duplicates': 'off',
-    '@typescript-eslint/no-explicit-any': 'off'
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/ban-types': 'off'
   }
 }
