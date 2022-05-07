@@ -1,5 +1,8 @@
 <template>
   <div class="login-page">
+    <div class="login-page mx-auto p-3 w-330">
+      <h5 class="my-4 text-center">登录到者也</h5>
+    </div>
     <validate-form @form-submit="onFormSubmit">
       <div class="mb-3">
         <label class="form-label">邮箱地址</label>
@@ -28,6 +31,7 @@ import { defineComponent, ref } from 'vue'
 import { useStore } from 'vuex'
 import ValidateInput, { RulesProp } from '../components/ValidateInput.vue'
 import ValidateForm from '../components/ValidateForm.vue'
+import createMessage from '@/components/createMessage'
 import { useRouter } from 'vue-router'
 
 export default defineComponent({
@@ -55,9 +59,13 @@ export default defineComponent({
           password: passwordVal.value
         }
         console.log(payload)
-        store.dispatch('login', payload).then(res => {
-          console.log(res)
-          router.push('/')
+        store.dispatch('loginAndFetch', payload).then(() => {
+          createMessage('登陆成功, 两秒之后跳转首页', 'success')
+          setTimeout(() => {
+            router.push('/')
+          }, 2000)
+        }).catch(e => {
+          console.log(e)
         })
       }
     }

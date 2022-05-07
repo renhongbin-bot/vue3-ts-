@@ -18,21 +18,43 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue'
+import { defineComponent, computed, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
+import axios from 'axios'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import GlobalHeader from './components/GlobalHeader.vue'
 import Loader from './components/Loader.vue'
+import createMessage from './components/createMessage'
+import { GlobalDataProps } from './store'
 // 邮箱验证
 export default defineComponent({
   name: 'App',
   setup () {
-    const store = useStore()
+    const store = useStore<GlobalDataProps>()
     const currentUser = computed(() => store.state.user)
     const isLoading = computed(() => store.state.loading)
+    const token = computed(() => store.state.token)
+    const error = computed(() => store.state.error)
+    onMounted(() => {
+      const message = createMessage('theck here', 'success')
+      setTimeout(() => {
+        message.destory()
+      }, 2000)
+      if (!currentUser.value.isLogin && token.value) {
+        axios.defaults.headers.common.Authorization = `Bearer ${token.value}`
+        store.dispatch('fetchCurrentUser')
+      }
+    })
+    watch(() => error.value.status, () => {
+      const { status, message } = error.value
+      if (status && message) {
+        createMessage(message, 'error')
+      }
+    })
     return {
       currentUser,
-      isLoading
+      isLoading,
+      error
     }
   },
   components: {

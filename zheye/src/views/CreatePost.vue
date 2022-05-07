@@ -36,7 +36,6 @@ import { useStore } from 'vuex'
 import ValidateForm from '../components/ValidateForm.vue'
 import ValidateInput, { RulesProp } from '../components/ValidateInput.vue'
 import { GlobalDataProps } from '../store'
-import { PostProps } from '../testData'
 export default defineComponent({
   components: {
     ValidateForm,
@@ -61,18 +60,17 @@ export default defineComponent({
     ]
     const onFormSubmit = (result: boolean) => {
       if (result) {
-        const { columnId } = store.state.user
-        console.log(store.state.user.columnId)
-        if (columnId) {
-          const newPost: PostProps = {
+        const { column } = store.state.user
+        console.log(store.state.user.column)
+        if (column) {
+          const newPost = {
             id: new Date().getTime(),
             title: titleVal.value,
             content: contentVal.value,
-            columnId,
             createdAt: new Date().toLocaleString()
           }
           store.commit('createPost', newPost)
-          router.push({ name: 'column', params: { id: columnId } })
+          router.push({ name: 'column', params: { id: column } })
         }
       }
     }

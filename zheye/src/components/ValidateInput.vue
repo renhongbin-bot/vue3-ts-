@@ -12,8 +12,8 @@ import { defineComponent, reactive, PropType, onMounted } from 'vue'
 import { emitter } from './ValidateForm.vue'
 // 邮箱正则表达式
 const emailReg = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9]+(?:\.[a-z])/
-interface IRuleProp {
-  type: 'required' | 'email' | 'range'
+interface RuleProp {
+  type: 'required' | 'email' | 'range' | 'custom'
   min?: {
     length: number
     message: string
@@ -22,9 +22,10 @@ interface IRuleProp {
     length: number
     message: string
   }
-  message?: string
+  message?: string,
+  validator?: () => boolean
 }
-export type RulesProp = IRuleProp[]
+export type RulesProp = RuleProp[]
 export type TagType = 'input' | 'textarea'
 export default defineComponent({
   name: 'ValidateInput',
@@ -73,6 +74,9 @@ export default defineComponent({
               } else if (rule.max) {
                 passed = inputRef.val.length <= rule.max.length
               }
+              break
+            case 'custom':
+              passed = rule.validator ? rule.validator() : true
               break
             default:
               break
