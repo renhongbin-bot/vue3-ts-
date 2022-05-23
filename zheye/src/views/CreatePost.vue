@@ -1,9 +1,22 @@
 <template>
   <div class="create-post-page">
     <h4>新建文章</h4>
-    <uploader action="/upload" :beforeUpload="beforeUpload" @file-uploaded="onFileUploaded">
+    <uploader action="/upload"
+    :beforeUpload="uploadChek"
+    @file-uploaded="onFileUploaded"
+    class="d-flex align-items-center justify-content-center bg-light w-100 my-4"
+    >
+      <h2>点击上传头图</h2>
+      <template #loading>
+        <div class="d-flex">
+          <div class="spinner-border text-secondary" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+          <h2>正在上传</h2>
+        </div>
+      </template>
       <template #uploaded="dataProps">
-        <img :src="dataProps.uploadedData.data.url" width="500" />
+        <img :src="dataProps.uploadedData.data.url" />
       </template>
     </uploader>
     <validate-form @form-submit="onFormSubmit">
@@ -42,8 +55,9 @@ import axios from 'axios'
 import ValidateForm from '../components/ValidateForm.vue'
 import ValidateInput, { RulesProp } from '../components/ValidateInput.vue'
 import Uploader from '../components/Uploader.vue'
+import { GlobalDataProps, ResponseType, ImageProps, PostProps } from '../store'
+import { beforeUploadCheck } from '../helper'
 import createMessage from '../components/createMessage'
-import { GlobalDataProps, ResponseType, ImageProps } from '../store'
 export default defineComponent({
   components: {
     ValidateForm,
@@ -54,6 +68,7 @@ export default defineComponent({
     const titleVal = ref('')
     const router = useRouter()
     const store = useStore<GlobalDataProps>()
+    let imageId = ''
     const titleRules: RulesProp = [
       {
         type: 'required',
@@ -67,28 +82,31 @@ export default defineComponent({
         message: '文章详情不能为空'
       }
     ]
-    const beforeUpload = (file: File) => {
-      const isJpg = file.type === 'image/jpeg'
-      if (!isJpg) {
-        createMessage('上传图片只能是JPG格式', 'error')
-      }
-      return isJpg
-    }
     const onFileUploaded = (rawData: ResponseType<ImageProps>) => {
-      console.log(rawData)
-      createMessage(`上传图片ID${rawData.data._id}`, 'success')
+      if (rawData.data._id) {
+        imageId = rawData.data._id
+      }
     }
     const onFormSubmit = (result: boolean) => {
       if (result) {
-        const { column } = store.state.user
+        const { column, _id } = store.state.user
         console.log(store.state.user.column)
         if (column) {
-          const newPost = {
-            id: new Date().getTime(),
+          const newPost: PostProps = {
             title: titleVal.value,
             content: contentVal.value,
-            createdAt: new Date().toLocaleString()
+            column,
+            author: _id
           }
+          if (imageId) {
+            newPost.image = imageId
+          }
+          store.dispatch('createPost', newPost).then(() => {
+            createMessage('发表成功，2s后跳转到文章', 'success', 2000)
+            setTimeout(() => {
+              router.push({ name: 'column', params: { id: column } })
+            }, 2000)
+          })
           store.commit('createPost', newPost)
           router.push({ name: 'column', params: { id: column } })
         }
@@ -110,6 +128,17 @@ export default defineComponent({
         })
       }
     }
+    const uploadChek = (file: File) => {
+      const result = beforeUploadCheck(file, { format: ['image/jpeg', 'image/png'], size: 1 })
+      const { passed, error } = result
+      if (error === 'format') {
+        createMessage('上传图片只能是JPG/PNG格式', 'error')
+      }
+      if (error === 'size') {
+        createMessage('上传图片不能大于1Mb', 'error')
+      }
+      return passed
+    }
     return {
       titleRules,
       titleVal,
@@ -117,13 +146,21 @@ export default defineComponent({
       contentVal,
       onFormSubmit,
       handleFileChange,
-      beforeUpload,
-      onFileUploaded
+      onFileUploaded,
+      uploadChek
     }
   }
 })
 </script>
 
 <style>
-
+.create-post-page .file-upload-container {
+  height: 200px;
+  cursor: pointer;
+}
+.create-post-page .file-upload-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 </style>
